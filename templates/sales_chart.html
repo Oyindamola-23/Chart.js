@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales and Quantity Charts</title>
+    <!-- Include Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Set up canvas elements for the charts -->
+    <canvas id="quantitySummaryMonthlyChart" width="400" height="200"></canvas>
+    <canvas id="quantitySummaryQuarterlyChart" width="400" height="200"></canvas>
+    <canvas id="quantitySummaryYearlyChart" width="400" height="200"></canvas>
+    <canvas id="salesSummaryMonthlyChart" width="400" height="200"></canvas>
+    <canvas id="salesSummaryQuarterlyChart" width="400" height="200"></canvas>
+    <canvas id="salesSummaryYearlyChart" width="400" height="200"></canvas>
+
+    <script>
+        // Function to create and render a chart
+        function renderChart(chartId, chartType, labels, data, label, backgroundColor, borderColor) {
+            var ctx = document.getElementById(chartId).getContext('2d');
+
+            var chart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: label,
+                            data: data,
+                            backgroundColor: backgroundColor,
+                            borderColor: borderColor,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch data from the server and render the charts when the page loads
+        fetch('/get_data')
+            .then(response => response.json())
+            .then(data => {
+                // Render quantity summary charts
+                renderChart('quantitySummaryMonthlyChart', 'bar', data.month_labels, data.quantity_summary_monthly, 'Quantity (Monthly)', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+                renderChart('quantitySummaryQuarterlyChart', 'bar', data.quarter_labels, data.quantity_summary_quarterly, 'Quantity (Quarterly)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
+                renderChart('quantitySummaryYearlyChart', 'bar', data.year_labels, data.quantity_summary_yearly, 'Quantity (Yearly)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 205, 86, 1)');
+
+                // Render sales summary charts
+                renderChart('salesSummaryMonthlyChart', 'bar', data.month_labels, data.sales_summary_monthly, 'Sales (Monthly)', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+                renderChart('salesSummaryQuarterlyChart', 'bar', data.quarter_labels, data.sales_summary_quarterly, 'Sales (Quarterly)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
+                renderChart('salesSummaryYearlyChart', 'bar', data.year_labels, data.sales_summary_yearly, 'Sales (Yearly)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 205, 86, 1)');
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>
