@@ -10,7 +10,7 @@ def index():
 
 @app.route('/get_data')
 def get_data():
-    # Replace this with the logic to get your cleaned data
+    # To get the month_labels
     month_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     # Actual sales data for different summaries
@@ -53,7 +53,8 @@ def generate_sales_summary(df, summary_folder):
     df['year'] = df['date of sales'].dt.year
     df['quarter'] = df['date of sales'].dt.quarter
     df['month'] = df['date of sales'].dt.month
-    df['quantity'] = df['total sales'] / df['price in kobo']  # Assuming 'price in kobo' represents price per unit
+    # Assuming 'price in kobo' represents price per unit
+    df['quantity'] = df['total sales'] / df['price in kobo']
 
     sales_summary_monthly = df.groupby(['year', 'month'])[['total sales']].sum().reset_index()
     quantity_summary_monthly = df.groupby(['year', 'month'])[['quantity']].sum().reset_index()
@@ -74,11 +75,15 @@ def generate_sales_summary(df, summary_folder):
     quantity_summary_yearly.to_csv(f'{summary_folder}/quantity_summary_yearly.csv', index=False)
 
 if __name__ == "__main__":
-    file_path = 'dabarobjects_data.csv'  # Update with the correct file path
-    summary_folder = 'sales_summary'  # Update with the desired summary folder name
+    # dabarobjects_data file file_path
+    file_path = 'dabarobjects_data.csv'
+    # sales_summary folder
+    summary_folder = 'sales_summary'
     df = load_and_preprocess_data(file_path)
     generate_sales_summary(df, summary_folder)
     print("Code execution completed.")
-    print("Current working directory:", os.getcwd())  # Print current working directory
-    print("File path:", os.path.abspath(__file__))  # Print absolute path of the script
+    # Print current working directory
+    print("Current working directory:", os.getcwd())
+    # Print absolute path of the script
+    print("File path:", os.path.abspath(__file__))
     app.run(debug=True)
