@@ -1,3 +1,4 @@
+<!-- sales_chart.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,27 +19,25 @@
 
     <script>
         // Function to create and render a chart
-        function renderChart(chartId, chartType, labels, data, label, backgroundColor, borderColor) {
+        function renderChart(chartId, chartType, labels, datasets, legendPosition) {
             var ctx = document.getElementById(chartId).getContext('2d');
 
             var chart = new Chart(ctx, {
                 type: chartType,
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: label,
-                            data: data,
-                            backgroundColor: backgroundColor,
-                            borderColor: borderColor,
-                            borderWidth: 1
-                        }
-                    ]
+                    datasets: datasets
                 },
                 options: {
                     scales: {
                         y: {
                             beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: legendPosition || 'top' // You can change the legend position if needed
                         }
                     }
                 }
@@ -49,15 +48,85 @@
         fetch('/get_data')
             .then(response => response.json())
             .then(data => {
+                // Define different colors for each year
+                var yearColors = {
+                    '2019': 'rgba(255, 0, 0, 0.2)', // Red
+                    '2020': 'rgba(0, 255, 0, 0.2)', // Green
+                    '2021': 'rgba(0, 0, 255, 0.2)', // Blue
+                    '2022': 'rgba(0, 0, 0, 0.2)'    // Black
+                    // Add more years with their respective colors as needed
+                };
+
+                // Define different colors for each quarter
+                var quarterColors = {
+                    'Q1': 'rgba(255, 0, 0, 0.2)', // Red
+                    'Q2': 'rgba(0, 255, 0, 0.2)', // Green
+                    'Q3': 'rgba(0, 0, 255, 0.2)', // Blue
+                    'Q4': 'rgba(255, 255, 0, 0.2)' // Yellow
+                    // Add more quarters with their respective colors as needed
+                };
+
                 // Render quantity summary charts
-                renderChart('quantitySummaryMonthlyChart', 'bar', data.month_labels, data.quantity_summary_monthly, 'Quantity (Monthly)', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
-                renderChart('quantitySummaryQuarterlyChart', 'bar', data.quarter_labels, data.quantity_summary_quarterly, 'Quantity (Quarterly)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
-                renderChart('quantitySummaryYearlyChart', 'bar', data.year_labels, data.quantity_summary_yearly, 'Quantity (Yearly)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 205, 86, 1)');
+                renderChart('quantitySummaryMonthlyChart', 'bar', data.month_labels, [
+                    {
+                        label: 'Quantity (Monthly)',
+                        data: data.quantity_summary_monthly,
+                        backgroundColor: data.year_labels.map(year => yearColors[year] || 'rgba(75, 192, 192, 0.2)'),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]);
+
+                renderChart('quantitySummaryQuarterlyChart', 'line', data.quarter_labels, [
+                    {
+                        label: 'Quantity (Quarterly)',
+                        data: data.quantity_summary_quarterly,
+                        backgroundColor: data.quarter_labels.map(quarter => quarterColors[quarter] || 'rgba(255, 99, 132, 0.2)'),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]);
+
+                renderChart('quantitySummaryYearlyChart', 'doughnut', data.year_labels, [
+                    {
+                        label: 'Quantity (Yearly)',
+                        data: data.quantity_summary_yearly,
+                        backgroundColor: data.year_labels.map(year => yearColors[year] || 'rgba(255, 205, 86, 0.2)'),
+                        borderColor: 'rgba(255, 205, 86, 1)',
+                        borderWidth: 1
+                    }
+                ]);
 
                 // Render sales summary charts
-                renderChart('salesSummaryMonthlyChart', 'bar', data.month_labels, data.sales_summary_monthly, 'Sales (Monthly)', 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
-                renderChart('salesSummaryQuarterlyChart', 'bar', data.quarter_labels, data.sales_summary_quarterly, 'Sales (Quarterly)', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)');
-                renderChart('salesSummaryYearlyChart', 'bar', data.year_labels, data.sales_summary_yearly, 'Sales (Yearly)', 'rgba(255, 205, 86, 0.2)', 'rgba(255, 205, 86, 1)');
+                renderChart('salesSummaryMonthlyChart', 'line', data.month_labels, [
+                    {
+                        label: 'Sales (Monthly)',
+                        data: data.sales_summary_monthly,
+                        backgroundColor: data.year_labels.map(year => yearColors[year] || 'rgba(75, 192, 192, 0.2)'),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]);
+
+                renderChart('salesSummaryQuarterlyChart', 'bar', data.quarter_labels, [
+                    {
+                        label: 'Sales (Quarterly)',
+                        data: data.sales_summary_quarterly,
+                        backgroundColor: data.quarter_labels.map(quarter => quarterColors[quarter] || 'rgba(255, 99, 132, 0.2)'),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]);
+
+                renderChart('salesSummaryYearlyChart', 'pie', data.year_labels, [
+                    {
+                        label: 'Sales (Yearly)',
+                        data: data.sales_summary_yearly,
+                        backgroundColor: data.year_labels.map(year => yearColors[year] || 'rgba(255, 205, 86, 0.2)'),
+                        borderColor: 'rgba(255, 205, 86, 1)',
+                        borderWidth: 1
+                    }
+                ]);
             })
             .catch(error => console.error('Error fetching data:', error));
     </script>
